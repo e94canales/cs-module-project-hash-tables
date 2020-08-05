@@ -47,7 +47,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return self.size / self.capacity
 
     def fnv1(self, key):
         """
@@ -72,13 +72,15 @@ class HashTable:
             hash = (hash * 33) + ord(char)
         return hash
 
+
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
         #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.djb2(key) % len(self.buckets)
+
 
     def put(self, key, value):
         """
@@ -90,8 +92,30 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        self.buckets[index] = value
-        self.size += 1
+        current = self.buckets[index]
+
+        # if current slot is empty, make new entry with the key and value
+        if current is None:
+            self.buckets[index] = HashTableEntry(key, value)
+            self.size += 1
+            return
+
+        # if there is something in the current slot    
+        while current is not None:
+            # if it's equal to the key, overwrite the current value with the new one
+            if current.key == key:
+                current.value = value
+                break
+
+            # if current has a next entry, set the current to the currents next entry
+            if current.next:
+                current = current.next
+
+            # if current has no next and is not key, create a new entry in its position
+            if current.next is None and current.key is not key:
+                current.next = HashTableEntry(key, value)
+                self.size += 1
+                break
 
 
     def delete(self, key):
@@ -103,11 +127,42 @@ class HashTable:
         Implement this.
         """
         # Your code here
+
         index = self.hash_index(key)
-        if (self.buckets[index] is None):
-            print("Not Found")
+        current = self.buckets[index]
+        
+        # if "head" is None
+        if current is None:
+            return None
+
+        # if "head" is current key
+        if current.key == key:
+            # if there is .next assign current.next as the new "head"
+            if current.next:
+                self.buckets[index] = current.next
+                self.size -= 1
+            else:
+                self.buckets[index] = None
+                self.size -= 1
+
+            
         else:
-            self.buckets[index] = None
+            # while there is something in the slot
+            while current is not None:
+                if current.next.key is key:
+                    # if the "heads" next is equal to key and its next also has a next, set the current next as the next's next
+                    if current.next.next:
+                        current.next = current.next.next
+                        self.size -= 1
+                        break
+                    else:
+                        current.next = None
+                        self.size -= 1
+                        break
+                else:
+                    # if current is not equal to key, set current as it's next
+                    current = current.next
+
 
 
     def get(self, key):
@@ -119,8 +174,27 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        
         index = self.hash_index(key)
-        return self.buckets[index]
+        current = self.buckets[index]
+        
+        # if current slot has nothing, return None
+        if current is None:
+            return None
+        
+        # if something is in the slot
+        while current is not None:
+            # if the current entry is equals to the key, return current value
+            if current.key == key:
+                return current.value
+
+            # if current has a next, set current as the old currents next
+            if current.next:
+                current = current.next
+
+            # if current has no next and the current entry is not equals to the key, return None
+            if not current.next and current.key is not key:
+                return None
         
 
 
@@ -132,6 +206,32 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        currentBuckets = self.buckets
+
+        if new_capacity is None:
+            if self.get_load_factor >= 0.7:
+                self.capacity *= 2
+                self.buckets = [None] * self.capacity
+
+                for entry in currentBuckets:
+                    self.put(entry.key, entry.value)
+
+            if self.get_load_factor <= 0.2:
+                self.capacity /= 2
+                self.buckets = [None] * self.capacity
+
+                for entry in currentBuckets:
+                    self.put(entry.key, entry.value)
+
+
+        else:
+            self.capacity = new_capacity
+            self.buckets = [None] * self.capacity
+
+            for entry in currentBuckets:
+                while entry is not None:
+                    self.put(entry.key, entry.value)
+                    entry = entry.next
 
 
 

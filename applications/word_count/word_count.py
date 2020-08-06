@@ -1,7 +1,18 @@
+import re
+
 def word_count(s):
     # Your code here
+    d = {}
 
+    fixedString = re.sub('["\\:\\;\\,\\.\\-\\+\\=\\/\\\\\|\\[\\]\\{\\}\\(\\)\\*\\^\\&]', '', s).lower().split()
 
+    for word in fixedString:
+        if word not in d:
+            d[word] = 0
+
+        d[word] += 1
+
+    return d
 
 if __name__ == "__main__":
     print(word_count(""))

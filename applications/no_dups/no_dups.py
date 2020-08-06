@@ -1,6 +1,15 @@
 def no_dups(s):
     # Your code here
+    d = {}
+    stringArr = s.lower().split()
+    newStr = ""
 
+    for word in stringArr:
+        if word not in d:
+            d[word] = True
+            newStr += f"{word} "
+
+    return newStr.strip()
 
 
 if __name__ == "__main__":

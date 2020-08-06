@@ -189,12 +189,12 @@ class HashTable:
                 return current.value
 
             # if current has a next, set current as the old currents next
-            if current.next:
-                current = current.next
+         
+            current = current.next
 
             # if current has no next and the current entry is not equals to the key, return None
-            if not current.next and current.key is not key:
-                return None
+            # if not current.next and current.key is not key:
+        return None
         
 
 
